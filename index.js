@@ -8,48 +8,44 @@ var gulp = require('gulp'),
     cssInline = require('gulp-inline-css'),
     htmlmin = require('gulp-htmlmin'),
     injectString = require('gulp-inject-string'),
-    merge = require('merge-deep'),
-    sass = require('gulp-sass'),
+    sass = require('node-sass'),
     Task = Elixir.Task;
 
-var config = {
+Elixir.config.email = {
     source: {
-        sass: 'resources/assets/sass/emails/email.scss',
-        templates: 'resources/templates/emails',
-        images: 'resources/images/emails',
-        allowed_view_extensions: 'blade.php'
+        sass: Elixir.config.assetsPath + '/emails/sass/email.+(scss|sass)',
+        templates: Elixir.config.viewPath + '/emails/views/**/*.blade.php',
+        images: Elixir.config.assetsPath + '/emails/images/'
     },
     public: {
-        views: 'public/views',
-        css: 'public/css',
-        images: 'public/images/emails'
+        views: Elixir.config.publicPath + '/views',
+        images: Elixir.config.publicPath + '/images/emails'
     }
 };
 
+var emailcss;
+
 Elixir.extend('processEmails', function(options) {
-    config = merge(config, options);
-    var templates = config.source.templates + '/**/*.' + config.source.allowed_view_extensions;
-    // console.log(templates);
+    var config = Elixir.config.email;
     new Task('processEmails', function() {
-        // this.recordStep('Inlining Css');
-        gulp.src(config.source.sass)
-            .pipe(sass())
-            .pipe(gulp.dest(config.public.css));
         return gulp
-            .src(templates)
+            .src(config.source.templates)
             .pipe(inky())
             .pipe(prettify({ indent_size: 2 }))
             .pipe(injectString.replace('-&gt;', '->'))
             .pipe(injectString.replace('=&gt;', '=>'))
             .pipe(injectString.replace('&quot;', '"'))
             .pipe(injectString.replace('&apos;', '\''))
-            .pipe(instyler(config.public.css + '/email.css'))
+            .pipe(instyler())
             .pipe(gulp.dest(config.public.views));
     })
-    .watch(templates);
+    .watch(config.source.templates);
 
-    function instyler(css) {
-        var css = fs.readFileSync(css).toString();
+    function instyler() {
+        var sassResult = sass.renderSync({
+            file: config.source.sass
+        });
+        var css = sassResult.css.toString();
         var breakpointCss = siphon(css);
         var pipe = lazypipe()
             .pipe(

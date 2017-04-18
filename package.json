@@ -1,11 +1,11 @@
 {
   "name": "laravel-elixir-process-email",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "This package adds email processing and templating.  It uses foundation inky and inline css.",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gorriecoe/laravel-elixir-process-email.git"
+    "url": "https://github.com/gorriecoe/laravel-elixir-process-email.git"
   },
   "keywords": [
     "laravel",
@@ -26,10 +26,9 @@
     "gulp-inject-string": "^1.1.0",
     "gulp-inline-css": "^3.1.0",
     "gulp-prettify": "^0.4.0",
-    "gulp-sass": "^3.1.0",
     "inky": "^1.3.5",
     "lazypipe": "^1.0.1",
-    "merge-deep": "^3.0.0",
+    "node-sass": "^4.5.2",
     "siphon-media-query": "^1.0.0"
   }
 }
