@@ -7,19 +7,21 @@ var gulp = require('gulp'),
     prettify = require('gulp-prettify'),
     inky = require('inky'),
     lazypipe = require('lazypipe'),
-    sass = require('node-sass')
+    sass = require('node-sass'),
     siphon = require('siphon-media-query');
 
 
 Elixir.config.email = {
-    source: {
-        sass: Elixir.config.assetsPath + '/emails/sass/email.+(scss|sass)',
-        templates: Elixir.config.viewPath + '/emails/views/**/*.blade.php',
-        images: Elixir.config.assetsPath + '/emails/images/'
+    assets: {
+        // Defines the path to the sass file.  This is a direct path and should not include wildcards.
+        sass: Elixir.config.assetsPath + '/emails/sass/email.scss',
+
+        // Defines the path to the email source files.
+        templates: Elixir.config.assetsPath + '/emails/views/**/*.blade.php'
     },
     public: {
-        views: Elixir.config.publicPath + '/views',
-        images: Elixir.config.publicPath + '/images/emails'
+        // Defines the path to the folder containing the compiled email templates.
+        views: Elixir.config.publicPath + '/views'
     }
 };
 
@@ -28,7 +30,7 @@ Elixir.extend('processEmails', function(options) {
     new Elixir.Task('processEmails', function() {
         this.recordStep('Processing Emails');
         return gulp
-            .src(config.source.templates)
+            .src(config.assets.templates)
             .pipe(inky())
             .pipe(prettify({ indent_size: 2 }))
             .pipe(injectString.replace('-&gt;', '->'))
@@ -39,14 +41,13 @@ Elixir.extend('processEmails', function(options) {
             .pipe(minifier())
             .pipe(gulp.dest(config.public.views));
     })
-    .watch(config.source.templates);
+    .watch(config.assets.templates);
 
     function instyler() {
-        var sassResult = sass.renderSync({
-            file: config.source.sass
-        });
-        var css = sassResult.css.toString();
-        var breakpointCss = siphon(css);
+        var sassResult = sass.renderSync({file: config.assets.sass}),
+            css = sassResult.css.toString(),
+            breakpointCss = siphon(css);
+
         var pipe = lazypipe()
             .pipe(
                 cssInline,

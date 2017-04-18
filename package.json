@@ -1,6 +1,6 @@
 {
   "name": "laravel-elixir-process-email",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "This package adds email processing and templating.  It uses foundation inky and inline css.",
   "main": "index.js",
   "repository": {
