@@ -1,15 +1,15 @@
 var gulp = require('gulp'),
     Elixir = require('laravel-elixir'),
-    fs = require('fs'),
-    inky = require('inky'),
-    prettify = require('gulp-prettify'),
-    siphon = require('siphon-media-query'),
-    lazypipe = require('lazypipe'),
-    cssInline = require('gulp-inline-css'),
     htmlmin = require('gulp-htmlmin'),
+    gulpif = require('gulp-if'),
     injectString = require('gulp-inject-string'),
-    sass = require('node-sass'),
-    Task = Elixir.Task;
+    cssInline = require('gulp-inline-css'),
+    prettify = require('gulp-prettify'),
+    inky = require('inky'),
+    lazypipe = require('lazypipe'),
+    sass = require('node-sass')
+    siphon = require('siphon-media-query');
+
 
 Elixir.config.email = {
     source: {
@@ -23,11 +23,10 @@ Elixir.config.email = {
     }
 };
 
-var emailcss;
-
 Elixir.extend('processEmails', function(options) {
     var config = Elixir.config.email;
-    new Task('processEmails', function() {
+    new Elixir.Task('processEmails', function() {
+        this.recordStep('Processing Emails');
         return gulp
             .src(config.source.templates)
             .pipe(inky())
@@ -37,6 +36,7 @@ Elixir.extend('processEmails', function(options) {
             .pipe(injectString.replace('&quot;', '"'))
             .pipe(injectString.replace('&apos;', '\''))
             .pipe(instyler())
+            .pipe(minifier())
             .pipe(gulp.dest(config.public.views));
     })
     .watch(config.source.templates);
@@ -61,15 +61,15 @@ Elixir.extend('processEmails', function(options) {
             .pipe(
                 injectString.replace,
                 '<!-- <style> -->', '<style>' + breakpointCss + '</style>'
-            )
-            .pipe(
-                htmlmin,
-                {
-                    collapseWhitespace: true,
-                    minifyCSS: true
-                }
             );
-
         return pipe();
     }
+
+    var minifier = lazypipe()
+        .pipe(function () {
+            return gulpif(Elixir.config.production, htmlmin({
+                collapseWhitespace: true,
+                minifyCSS: true
+            }));
+        });
 });
