@@ -25,7 +25,7 @@ Elixir.config.email = {
     }
 };
 
-Elixir.extend('processEmails', function(options) {
+Elixir.extend('processEmails', function() {
     var config = Elixir.config.email;
     new Elixir.Task('processEmails', function() {
         this.recordStep('Processing Emails');
